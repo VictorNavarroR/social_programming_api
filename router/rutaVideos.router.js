@@ -118,11 +118,12 @@ RutaVideosRouter.put('/:id', isAuthenticated, (req, res) => {
                 })
 })
 
-RutaVideosRouter.put('/:id', isAuthenticated, (req, res) => {
+RutaVideosRouter.put('/like/:id', isAuthenticated, (req, res) => {
     const id = req.params.id
     
 
-    return RutaVideos.findByIdAndUpdate(id, { $push: { likes: req.body.likes } }, { overwrite })
+    return RutaVideos.findByIdAndUpdate(id,
+                { $addToSet: { likes: req.body.likes } })
                     .then( rutaVideoUpdated => {
                         return res.status(200).json(rutaVideoUpdated)
                     })

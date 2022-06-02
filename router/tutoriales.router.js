@@ -23,6 +23,24 @@ TutorialesRouter.get('/', (req, res, next) => {
 
 
 })
+
+TutorialesRouter.get('/:id', (req, res, next) => {
+
+    const id = req.params.id
+
+    Tutoriales.findById(id)
+        .then( ruta => {
+            return res.status(200).json(ruta);
+        })
+        .catch( err => {
+            const error = new Error(err)
+            error.status = 500
+            return next(error)
+        })
+
+
+})
+
 TutorialesRouter.get('/limit/:q', (req, res, next) => {
 
     const q = req.params.q
@@ -101,10 +119,14 @@ TutorialesRouter.post('/', isAuthenticated, [upload.upload.single('image'), uplo
     
 })
 
-TutorialesRouter.put('/:id', isAuthenticated, (req, res) => {
+TutorialesRouter.put('/:id', isAuthenticated, [upload.upload.single('image'), upload.uploadToCloudinary], (req, res) => {
     const id = req.params.id
     
     const tutorialEdited = new Tutoriales(req.body)
+
+    const imagenTutorial = req.file_url ? req.file_url : undefined
+
+    tutorialEdited.image = imagenTutorial;
 
     tutorialEdited._id = id //reasignamos el id para sobreescribir el documento en la DB
 

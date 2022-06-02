@@ -28,7 +28,7 @@ usersRouter.get('/', isAuthenticated, (req, res, next) => {
 
 usersRouter.get('/:id', (req, res, next) => {
     const id = req.params.id
-    User.findById(id)
+    User.findById(id).populate('user_rol')
         .then( User => {
             return res.status(200).json(User);
         })
@@ -108,16 +108,13 @@ usersRouter.put('/:id', isAuthenticated,  [upload.upload.single('image'), upload
 })
 
 usersRouter.put('/ruta/:id',  isAuthenticated, (req, res) => {
-    const id = req.params.id
-    const userId = req.body.userId
-        
-    const userEdited = new User(req.body)
-    userEdited.user_paths = [...userEdited.user_paths, id]
-    userEdited._id = userId //reasignamos el id para sobreescribir el documento en la DB
+    const rutaId = req.params.id
 
-    return User.findByIdAndUpdate(userId,  userEdited )
+    const userId = req.body.userId;
+
+    return User.findByIdAndUpdate(userId, { $addToSet: { user_paths: rutaId }})
                     .then( userUpdated => {
-
+                        console.log(userId)
                         return res.status(200).json(userUpdated)
                     })
                     .catch( err => {
